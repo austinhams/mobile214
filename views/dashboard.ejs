@@ -1,0 +1,184 @@
+<%- include('partials/head', { title: 'Dashboard – mobile214' }) %>
+<%- include('partials/nav') %>
+
+<main class="max-w-lg mx-auto px-4 py-6">
+
+  <!-- Page header -->
+  <div class="flex items-center justify-between mb-5">
+    <h1 class="text-xl font-bold text-gray-900">My Events</h1>
+    <button onclick="openNewEventModal(this)"
+            class="inline-flex items-center gap-1.5 bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-700 transition shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      New Event
+    </button>
+  </div>
+
+  <!-- Error -->
+  <% if (error) { %>
+  <div class="mb-4 flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+    <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+    </svg>
+    <%= error %>
+  </div>
+  <% } %>
+
+  <!-- Events list -->
+  <% if (events.length === 0) { %>
+  <div class="text-center py-16 text-gray-400">
+    <svg class="w-14 h-14 mx-auto mb-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    </svg>
+    <p class="font-medium text-gray-500">No events yet.</p>
+    <p class="text-sm mt-1">Tap "New Event" to get started.</p>
+  </div>
+  <% } else { %>
+  <div class="space-y-3">
+    <% events.forEach(event => { %>
+    <a href="/events/<%= event.id %>"
+       class="block bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 hover:shadow-md hover:border-brand-100 transition group">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="font-semibold text-gray-900 truncate group-hover:text-brand-600 transition">
+            <%= event.name %>
+          </h2>
+          <% if (event.description) { %>
+          <p class="text-sm text-gray-500 mt-0.5 truncate"><%= event.description %></p>
+          <% } %>
+          <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+            <span><time data-ts="<%= new Date(event.created_at).toISOString() %>" data-fmt="date"></time></span>
+            <span class="inline-flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+              </svg>
+              <%= event.update_count %> update<%= event.update_count !== 1 ? 's' : '' %>
+            </span>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-gray-300 group-hover:text-brand-400 flex-shrink-0 mt-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <!-- Pagination -->
+  <% if (totalPages > 1) { %>
+  <nav class="flex items-center justify-center gap-1 mt-6" aria-label="Events pagination">
+    <% if (currentPage > 1) { %>
+    <a href="/dashboard?page=<%= currentPage - 1 %>"
+       class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+       aria-label="Previous page">&larr;</a>
+    <% } %>
+    <% for (let p = 1; p <= totalPages; p++) { %>
+    <a href="/dashboard?page=<%= p %>"
+       class="px-3 py-1.5 text-sm rounded-lg border transition <%= p === currentPage ? 'bg-brand-600 border-brand-600 text-white font-semibold' : 'border-gray-200 text-gray-600 hover:bg-gray-50' %>"
+       <% if (p === currentPage) { %>aria-current="page"<% } %>>
+      <%= p %>
+    </a>
+    <% } %>
+    <% if (currentPage < totalPages) { %>
+    <a href="/dashboard?page=<%= currentPage + 1 %>"
+       class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+       aria-label="Next page">&rarr;</a>
+    <% } %>
+  </nav>
+  <% } %>
+
+</main>
+
+<!-- New Event Modal -->
+<div id="new-event-modal"
+     class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+     onclick="if(event.target===this) closeNewEventModal()">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold text-gray-900">Create New Event</h2>
+      <button onclick="closeNewEventModal()"
+              class="text-gray-400 hover:text-gray-600 transition"
+              aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <form method="POST" action="/events" class="space-y-4">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div>
+        <label for="event-name" class="block text-sm font-medium text-gray-700 mb-1">Event name <span class="text-red-500">*</span></label>
+        <input type="text" id="event-name" name="name" required maxlength="100"
+               class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
+               placeholder="e.g. Product Launch Q2" />
+      </div>
+      <div>
+        <label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-gray-400 font-normal">(optional)</span></label>
+        <textarea id="event-description" name="description" rows="2" maxlength="500"
+                  class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition resize-none"
+                  placeholder="Brief description of this event..."></textarea>
+      </div>
+      <div class="flex gap-3 pt-1">
+        <button type="button"
+                onclick="closeNewEventModal()"
+                class="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition text-sm">
+          Cancel
+        </button>
+        <button type="submit"
+                class="flex-1 bg-brand-600 text-white font-semibold py-2.5 rounded-xl hover:bg-brand-700 transition text-sm">
+          Create Event
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let _newEventTrigger = null;
+  function openNewEventModal(btn) {
+    _newEventTrigger = btn || null;
+    document.getElementById('new-event-modal').classList.remove('hidden');
+    document.getElementById('event-name').focus();
+  }
+  function closeNewEventModal() {
+    document.getElementById('new-event-modal').classList.add('hidden');
+    if (_newEventTrigger) { _newEventTrigger.focus(); _newEventTrigger = null; }
+  }
+
+  // Real-time validation for the New Event form
+  (function () {
+    const nameEl = document.getElementById('event-name');
+    function fieldError(el, msg) {
+      el.classList.remove('border-gray-300');
+      el.classList.add('border-red-500');
+      let err = el.parentElement.querySelector('.field-error');
+      if (!err) {
+        err = document.createElement('p');
+        err.className = 'field-error text-red-500 text-xs mt-1';
+        el.parentElement.appendChild(err);
+      }
+      err.textContent = msg;
+    }
+    function fieldOk(el) {
+      el.classList.remove('border-red-500');
+      el.classList.add('border-gray-300');
+      el.parentElement.querySelector('.field-error')?.remove();
+    }
+    function validateName() {
+      if (!nameEl.value.trim()) { fieldError(nameEl, 'Event name is required.'); return false; }
+      fieldOk(nameEl); return true;
+    }
+    nameEl.addEventListener('blur', validateName);
+    nameEl.addEventListener('input', () => { if (nameEl.parentElement.querySelector('.field-error')) validateName(); });
+    document.querySelector('form[action="/events"]').addEventListener('submit', e => {
+      if (!validateName()) e.preventDefault();
+    });
+  }());
+</script>
+
+<%- include('partials/undo-toast') %>
+<%- include('partials/foot') %>

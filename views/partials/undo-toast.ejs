@@ -1,0 +1,31 @@
+<% if (locals.undoAction) { %>
+<div id="undo-toast"
+     role="status"
+     aria-live="polite"
+     class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-gray-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg w-max max-w-xs sm:max-w-sm">
+  <span class="flex-1"><%= undoAction.message %></span>
+  <form method="POST" action="<%= undoAction.restoreUrl %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <button type="submit"
+            class="font-semibold text-brand-400 hover:text-brand-300 transition whitespace-nowrap">
+      Undo
+    </button>
+  </form>
+  <button type="button"
+          onclick="dismissUndoToast()"
+          class="text-gray-400 hover:text-white transition ml-1"
+          aria-label="Dismiss">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+</div>
+<script>
+  var _undoTimer = setTimeout(dismissUndoToast, 5000);
+  function dismissUndoToast() {
+    clearTimeout(_undoTimer);
+    var t = document.getElementById('undo-toast');
+    if (t) t.remove();
+  }
+</script>
+<% } %>

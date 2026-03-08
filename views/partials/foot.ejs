@@ -1,0 +1,40 @@
+<script>
+  // Convert UTC timestamps to browser local timezone
+  document.querySelectorAll('time[data-ts]').forEach(function (el) {
+    var d = new Date(el.dataset.ts);
+    if (isNaN(d)) return;
+    if (el.dataset.fmt === 'datetime') {
+      el.textContent = new Intl.DateTimeFormat(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      }).format(d);
+    } else {
+      el.textContent = new Intl.DateTimeFormat(undefined, {
+        month: 'short', day: 'numeric', year: 'numeric'
+      }).format(d);
+    }
+    el.setAttribute('datetime', el.dataset.ts);
+  });
+</script>
+<script>
+  document.addEventListener('submit', function (e) {
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    if (!btn || btn.dataset.noLoading) return;
+    btn.disabled = true;
+    const original = btn.innerHTML;
+    btn.innerHTML =
+      '<svg class="animate-spin inline w-4 h-4 mr-1 -mt-0.5" fill="none" viewBox="0 0 24 24">'
+      + '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>'
+      + '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>'
+      + '</svg>'
+      + 'Please wait…';
+    // Restore if the browser stays on the page (e.g. validation error redirect)
+    window.addEventListener('pageshow', function () {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }, { once: true });
+  });
+</script>
+</body>
+</html>
