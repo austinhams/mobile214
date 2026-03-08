@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/tailwind.css --minify",
+    "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/tailwind.css --minify && node scripts/fingerprint-css.js",
     "dev": "concurrently \"nodemon app.js\" \"tailwindcss -i ./public/css/input.css -o ./public/css/tailwind.css --watch\"",
     "dev:kill": "lsof -ti:3000 | xargs kill -9"
   },

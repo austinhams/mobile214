@@ -4,4 +4,6 @@ npm-debug.log*
 .git/
 .gitignore
 *.md
-public/css/input.css
+public/css/tailwind.css
+public/css/tailwind.*.css
+public/css/manifest.json

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#4f46e5" />
   <title><%= title || 'mobile214' %></title>
-  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="preload" as="style" href="<%= cssFile %>" />
+  <link rel="stylesheet" href="<%= cssFile %>" />
 </head>
 <body class="bg-gray-50 min-h-screen font-sans antialiased">

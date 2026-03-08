@@ -27,8 +27,23 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// ─── CSS asset manifest (written by scripts/fingerprint-css.js) ────────────
+const manifestPath = path.join(__dirname, 'public', 'css', 'manifest.json');
+let cssManifest = {};
+if (fs.existsSync(manifestPath)) {
+  cssManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+}
+
 // ─── Static files ───────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, 'public')));
+// Fingerprinted CSS files get immutable long-lived cache headers;
+// everything else relies on ETag / conditional requests.
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders(res, filePath) {
+    if (/tailwind\.[a-f0-9]{8}\.css$/.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  },
+}));
 
 // ─── Security headers ───────────────────────────────────────────────────────
 app.use(helmet({
@@ -76,6 +91,12 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, sameSite: 'strict', maxAge: SESSION_MAX_AGE }
 }));
 app.use(attachCurrentUser);
+
+// Expose fingerprinted CSS path to all views
+app.use((req, res, next) => {
+  res.locals.cssFile = cssManifest['tailwind.css'] || '/css/tailwind.css';
+  next();
+});
 
 // ─── CSRF protection ────────────────────────────────────────────────────────
 const { generateToken, doubleCsrfProtection } = doubleCsrf({
