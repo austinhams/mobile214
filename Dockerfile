@@ -1,5 +1,7 @@
 # ── Build stage: install deps and compile CSS ────────────────────────────────
-FROM node:22-alpine AS build
+# Run on the native build machine so lightningcss native binaries are available
+# regardless of the target platform (CSS output is architecture-independent).
+FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 
 RUN apk update && apk upgrade --no-cache
 
