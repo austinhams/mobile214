@@ -26,11 +26,13 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/views ./views
 COPY --from=build /app/routes ./routes
 COPY --from=build /app/middleware ./middleware
+COPY --from=build /app/forms ./forms
 COPY --from=build /app/app.js ./app.js
 COPY --from=build /app/db.js ./db.js
 COPY --from=build /app/config.js ./config.js
 COPY --from=build /app/logger.js ./logger.js
 COPY --from=build /app/mailer.js ./mailer.js
+
 
 # Run as non-root user
 USER node
